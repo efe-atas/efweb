@@ -1,0 +1,30 @@
+---
+import type { NavLink } from '~/types'
+
+interface Props {
+  link: NavLink
+}
+
+const { link } = Astro.props
+
+// Aktif sayfa kontrolü
+const currentPath = Astro.url.pathname
+const linkPath = link.url.replace(/\/$/, '') || '/'
+const normalizedCurrentPath = currentPath.replace(/\/$/, '') || '/'
+const isActive = normalizedCurrentPath === linkPath || 
+  (linkPath !== '/' && normalizedCurrentPath.startsWith(linkPath))
+---
+
+<a
+  class:list={[
+    "no-underline transition-colors pb-0.5",
+    isActive 
+      ? "text-accent border-b-2 border-accent" 
+      : "hover:text-accent"
+  ]}
+  rel={link.external ? 'noopener noreferrer' : undefined}
+  target={link.external ? '_blank' : undefined}
+  href={link.url}
+>
+  {link.name}
+</a>

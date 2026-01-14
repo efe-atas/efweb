@@ -1,0 +1,100 @@
+---
+import siteConfig from '~/site.config'
+import LightDarkAutoButton from '~/components/LightDarkAutoButton.astro'
+import Search from '~/components/Search.astro'
+import SelectTheme from '~/components/SelectTheme.astro'
+import NavLink from '~/components/NavLink.astro'
+
+const lightDarkAutoTheme = siteConfig.themes.mode === 'light-dark-auto'
+const selectTheme =
+  siteConfig.themes.mode === 'select' && siteConfig.themes.include.length > 1
+---
+
+<header>
+  <!-- Logo -->
+  <a
+    id="logo"
+    href="/"
+    class="block text-2xl font-bold text-accent no-underline hover:opacity-80 transition-opacity"
+  >
+    {siteConfig.title}
+  </a>
+  
+  <!-- Navigation Bar -->
+  <div class="flex items-center justify-between mt-2 pt-2 border-t border-foreground/15">
+    <!-- Desktop Nav -->
+    <nav aria-label="Menu" class="hidden sm:block">
+      <ul class="flex flex-row items-center gap-0 text-foreground/70">
+        {
+          siteConfig.navLinks.map((link, index) => (
+            <>
+              <li class="hover:text-accent transition-colors">
+                <NavLink link={link} />
+              </li>
+              {index < siteConfig.navLinks.length - 1 && (
+                <span class="mx-3 text-foreground/30">|</span>
+              )}
+            </>
+          ))
+        }
+      </ul>
+    </nav>
+    
+    <!-- Mobile Nav Button -->
+    <nav id="nav-mobile" aria-label="Menu" class="relative sm:hidden">
+      <button
+        id="nav-mobile-button"
+        class="px-3 py-1 cursor-pointer border border-foreground/20 rounded-lg bg-transparent text-foreground/70 hover:border-accent hover:text-accent transition-colors"
+        type="button"
+        aria-expanded="false"
+        aria-controls="nav-menu-list"
+      >
+        Menü ▾
+      </button>
+      <ul
+        id="nav-mobile-list"
+        class="invisible absolute flex flex-col bg-background border border-foreground/15 m-0 p-2 top-10 left-0 z-50 rounded-lg shadow-lg min-w-32"
+      >
+        {
+          siteConfig.navLinks.map((link) => (
+            <li class="p-1.5 hover:text-accent transition-colors" aria-expanded="false">
+              <NavLink link={link} />
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+    
+    <!-- Tools (Search & Theme) -->
+    <div class="flex items-center gap-3">
+      <Search trailingSlashes={siteConfig.trailingSlashes} />
+      {lightDarkAutoTheme && <LightDarkAutoButton />}
+      {selectTheme && <SelectTheme />}
+    </div>
+  </div>
+</header>
+
+<script>
+  const navMobileButton = document.getElementById('nav-mobile-button')
+  const navMobileList = document.getElementById('nav-mobile-list')
+  const navMobileListItems = navMobileList?.querySelectorAll('li')
+  const toggleNavMobileMenu = (action: 'on' | 'off' | 'toggle') => {
+    let isNowOpen: boolean = false
+    if (action === 'on') {
+      isNowOpen = true
+      navMobileList?.classList.remove('invisible')
+    } else if (action === 'off') {
+      isNowOpen = false
+      navMobileList?.classList.add('invisible')
+    } else {
+      isNowOpen = !navMobileList?.classList.toggle('invisible')
+    }
+    navMobileButton?.setAttribute('aria-expanded', isNowOpen ? 'true' : 'false')
+    navMobileListItems?.forEach((listItem) => {
+      listItem.setAttribute('aria-expanded', isNowOpen ? 'true' : 'false')
+    })
+  }
+  navMobileButton?.addEventListener('click', (_ev) => {
+    toggleNavMobileMenu('toggle')
+  })
+</script>
